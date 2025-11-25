@@ -1,0 +1,157 @@
+# DataGather Configuration
+# =========================
+# This file configures which sources to scrape and how much data to gather.
+# Override with CLI flags: datagather gather --samples-per-source 50
+
+# Global settings
+output_dir: "./data"
+default_samples_per_source: 100
+save_full_documents: true
+save_chunks: true
+chunk_size: 512  # tokens per chunk
+chunk_overlap: 50  # overlap between chunks
+chunking_strategy: "token"  # "token", "sentence", or "paragraph"
+
+# Rate limiting defaults
+rate_limit:
+  requests_per_minute: 30
+  retry_attempts: 3
+  retry_delay_seconds: 1.0
+  retry_exponential_base: 2.0
+
+# Checkpoint configuration (for resumable scraping)
+checkpoint:
+  enabled: true
+  save_interval: 50  # save every N items
+  directory: "./data/checkpoints"
+
+# =============================================================================
+# Data Sources
+# =============================================================================
+
+sources:
+  # Wikipedia - Random articles
+  wikipedia:
+    enabled: true
+    samples: 100
+    language: "en"
+    min_article_length: 500  # characters
+    categories: []  # empty = random articles
+    exclude_categories:
+      - "Disambiguation pages"
+      - "Stub articles"
+
+  # Project Gutenberg - Public domain books
+  gutenberg:
+    enabled: true
+    samples: 50
+    api_url: "https://gutendex.com"
+    languages:
+      - "en"
+    genres:
+      - "Fiction"
+      - "Science"
+      - "History"
+      - "Philosophy"
+    min_text_length: 10000  # characters
+
+  # Code - GitHub code via HuggingFace
+  code:
+    enabled: true
+    samples: 200
+    dataset: "codeparrot/github-code"  # or "bigcode/the-stack-v2"
+    streaming: true
+    languages:
+      - "Python"
+      - "JavaScript"
+      - "Java"
+      - "Go"
+      - "Rust"
+      - "C++"
+    samples_per_language: null  # null = divide evenly
+    min_file_size: 100  # bytes
+    max_file_size: 100000  # bytes
+    exclude_patterns:
+      - "**/test/**"
+      - "**/*_test.*"
+      - "**/vendor/**"
+
+  # arXiv - Academic papers
+  arxiv:
+    enabled: true
+    samples: 100
+    categories:
+      - "cs.CL"      # Computation and Language
+      - "cs.AI"      # Artificial Intelligence
+      - "cs.LG"      # Machine Learning
+      - "stat.ML"    # Statistics ML
+    start_date: null  # YYYY-MM-DD format
+    end_date: null
+    content_type: "abstract"  # "abstract", "full_text", or "both"
+    sort_by: "relevance"
+
+  # Reddit - Posts and comments from HuggingFace
+  reddit:
+    enabled: true
+    samples: 200
+    data_source: "huggingface"  # uses HuggingFace datasets
+    subreddits:
+      - "AskScience"
+      - "ExplainLikeImFive"
+      - "WritingPrompts"
+      - "TodayILearned"
+      - "ChangeMyView"
+    min_score: 10
+    min_comment_length: 100
+    content_type: "both"  # "submissions", "comments", or "both"
+
+  # Twitter - Archived tweets from HuggingFace
+  twitter:
+    enabled: false  # Disabled by default - limited data available
+    samples: 100
+    data_source: "huggingface"
+    min_tweet_length: 50
+    exclude_retweets: true
+
+  # News - Articles from HuggingFace datasets
+  news:
+    enabled: true
+    samples: 100
+    source_type: "huggingface"
+    min_article_length: 500
+    include_title: true
+    include_authors: false
+
+  # Legal - Pile of Law from HuggingFace
+  legal:
+    enabled: true
+    samples: 100
+    datasets:
+      pile_of_law:
+        enabled: true
+        samples: 100
+        subsets:
+          - "courtlistener_opinions"
+          - "federal_register"
+        streaming: true
+      uspto:
+        enabled: false  # USPTO API requires separate setup
+        samples: 30
+        content_type: "abstract"
+
+  # Conversational - Dialog datasets
+  conversational:
+    enabled: true
+    samples: 100
+    datasets:
+      oyez:
+        enabled: false  # Requires ConvoKit: uv pip install convokit
+        samples: 60
+        year_range: [1990, 2023]
+        include_metadata: true
+      dialog:
+        enabled: true
+        samples: 100
+        sources:
+          - "daily_dialog"
+          - "topical_chat"
