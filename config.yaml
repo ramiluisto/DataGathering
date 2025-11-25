@@ -25,6 +25,12 @@ checkpoint:
   save_interval: 50  # save every N items
   directory: "./data/checkpoints"
 
+# Async configuration (for parallel execution)
+async_config:
+  enabled: true  # Run sources in parallel
+  max_concurrent_sources: null  # null = all sources run simultaneously
+  use_async_sources: true  # Use async versions of sources when available
+
 # =============================================================================
 # Data Sources
 # =============================================================================
@@ -155,3 +161,43 @@ sources:
         sources:
           - "daily_dialog"
           - "topical_chat"
+
+  # Stack Overflow - Q&A pairs
+  stackoverflow:
+    enabled: true
+    samples: 100
+    dataset: "koutch/stackoverflow_python"
+    min_score: 5
+    min_answer_score: 3
+    include_code: true
+    languages:
+      - "python"
+
+  # Reviews - Product reviews (Amazon)
+  reviews:
+    enabled: true
+    samples: 100
+    dataset: "McAuley-Lab/Amazon-Reviews-2023"
+    category: "All_Beauty"
+    min_rating: 1
+    max_rating: 5
+    min_review_length: 100
+    include_title: true
+
+  # Subtitles - Movie/TV subtitles (OpenSubtitles)
+  subtitles:
+    enabled: true
+    samples: 100
+    dataset: "open_subtitles"
+    language: "en"
+    min_length: 500
+    combine_utterances: true
+    max_utterances_per_doc: 50
+
+  # Recipes - Cooking recipes (RecipeNLG)
+  recipes:
+    enabled: true
+    samples: 100
+    dataset: "recipe_nlg"
+    min_ingredients: 3
+    min_instructions_length: 100

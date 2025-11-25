@@ -212,6 +212,53 @@ class ConversationalConfig(BaseModel):
     datasets: ConversationalDatasetsConfig = Field(default_factory=ConversationalDatasetsConfig)
 
 
+class StackOverflowConfig(BaseModel):
+    """Stack Overflow Q&A source configuration."""
+
+    enabled: bool = True
+    samples: int = 100
+    dataset: str = "koutch/stackoverflow_python"
+    min_score: int = 5
+    min_answer_score: int = 3
+    include_code: bool = True
+    languages: list[str] = Field(default_factory=lambda: ["python"])
+
+
+class ReviewsConfig(BaseModel):
+    """Product reviews source configuration."""
+
+    enabled: bool = True
+    samples: int = 100
+    dataset: str = "McAuley-Lab/Amazon-Reviews-2023"
+    category: str = "All_Beauty"
+    min_rating: int = 1
+    max_rating: int = 5
+    min_review_length: int = 100
+    include_title: bool = True
+
+
+class SubtitlesConfig(BaseModel):
+    """Movie/TV subtitles source configuration."""
+
+    enabled: bool = True
+    samples: int = 100
+    dataset: str = "open_subtitles"
+    language: str = "en"
+    min_length: int = 500
+    combine_utterances: bool = True
+    max_utterances_per_doc: int = 50
+
+
+class RecipesConfig(BaseModel):
+    """Cooking recipes source configuration."""
+
+    enabled: bool = True
+    samples: int = 100
+    dataset: str = "recipe_nlg"
+    min_ingredients: int = 3
+    min_instructions_length: int = 100
+
+
 # =============================================================================
 # Main configuration
 # =============================================================================
@@ -229,6 +276,10 @@ class SourcesConfig(BaseModel):
     news: NewsConfig = Field(default_factory=NewsConfig)
     legal: LegalConfig = Field(default_factory=LegalConfig)
     conversational: ConversationalConfig = Field(default_factory=ConversationalConfig)
+    stackoverflow: StackOverflowConfig = Field(default_factory=StackOverflowConfig)
+    reviews: ReviewsConfig = Field(default_factory=ReviewsConfig)
+    subtitles: SubtitlesConfig = Field(default_factory=SubtitlesConfig)
+    recipes: RecipesConfig = Field(default_factory=RecipesConfig)
 
 
 class CheckpointConfig(BaseModel):
@@ -237,6 +288,14 @@ class CheckpointConfig(BaseModel):
     enabled: bool = True
     save_interval: int = 50
     directory: str = "./data/checkpoints"
+
+
+class AsyncConfig(BaseModel):
+    """Async execution configuration."""
+
+    enabled: bool = True
+    max_concurrent_sources: Optional[int] = None  # None = all sources in parallel
+    use_async_sources: bool = True  # Use async versions of sources when available
 
 
 class GatherConfig(BaseModel):
@@ -252,6 +311,7 @@ class GatherConfig(BaseModel):
     rate_limit: RateLimitConfig = Field(default_factory=RateLimitConfig)
     sources: SourcesConfig = Field(default_factory=SourcesConfig)
     checkpoint: CheckpointConfig = Field(default_factory=CheckpointConfig)
+    async_config: AsyncConfig = Field(default_factory=AsyncConfig)
 
     @field_validator("output_dir", "checkpoint")
     @classmethod
